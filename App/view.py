@@ -24,6 +24,10 @@
  *
  """
 
+from DataStructures.List import single_linked_list as lt
+from DataStructures.List import array_list as al
+from DataStructures.Stack import stack as st
+from DataStructures.Queue import queue as q
 
 import sys
 import threading
@@ -72,14 +76,51 @@ def option_one(cont):
     print('Numero de vertices: ' + str(numvertex))
     print('Numero de arcos: ' + str(numedges))
     print('El limite de recursion actual: ' + str(sys.getrecursionlimit()))
-
+    
 def option_two(cont):
     # TODO: Imprimir los resultados de la opción 2
     ...
+    print("\nConsultando paradas más concurridas...\n")
+
+    top5 = logic.get_most_concurrent_stops(cont)
+
+    if lt.size(top5) == 0:
+        print("No hay información disponible.")
+        return
+
+    print("=== TOP 5 PARADAS MÁS CONCURRIDAS ===")
+
+    pos = 1
+    node = top5["first"]
+
+    while node is not None:
+        data = node["info"]  # {"stop": ..., "degree": ...}
+        print(f"{pos}. Paradero: {data['stop']}  →  {data['degree']} conexiones")
+        pos += 1
+        node = node["next"]
+
+    print("======================================\n")
+
 
 def option_three(cont):
     # TODO: Imprimir los resultados de la opción 3
     ...
+    print("\n--- OPCIÓN 3 (DFS) ---")
+    start = input("Parada inicial: ")
+    goal = input("Parada destino: ")
+
+    route = logic.get_route_between_stops_dfs(cont, start, goal)
+
+    if route is None:
+        print("No hay ruta DFS entre las paradas dadas.\n")
+        return
+
+    print("\nRuta DFS encontrada:")
+    node = route["first"]
+    while node is not None:
+        print(node["info"], end=" -> ")
+        node = node["next"]
+    print("FIN\n")
 
 def option_four(cont):
     # TODO: Imprimir los resultados de la opción 4

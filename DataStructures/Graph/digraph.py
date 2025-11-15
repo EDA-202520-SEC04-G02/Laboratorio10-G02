@@ -100,3 +100,61 @@ def size(graph):
     Retorna el número total de arcos del grafo.
     """
     return graph["num_edges"]
+
+
+# --------------------------------------------------------------------------------------------------
+
+def get_vertex(graph, key):
+    """
+    Retorna el vértice con clave key o None si no existe.
+    """
+    return mp.get(graph["vertices"], key)
+
+
+def vertices(graph):
+    """
+    Retorna una lista/iterable con TODAS las claves de los vértices.
+    """
+    return mp.key_set(graph["vertices"])
+
+
+def degree(graph, key):
+    """
+    Grado del vértice: número de arcos salientes.
+    """
+    vertex = get_vertex(graph, key)
+    return vtx.degree(vertex)
+
+
+def adjacents(graph, key):
+    """
+    Retorna las llaves de los vértices adyacentes a key.
+    """
+    vertex = get_vertex(graph, key)
+    return mp.key_set(vtx.get_adjacents(vertex))
+
+
+def edges_vertex(graph, key):
+    """
+    Retorna el mapa de arcos del vértice con clave key.
+    """
+    vertex = get_vertex(graph, key)
+    return vtx.get_adjacents(vertex)
+
+
+def update_vertex_info(graph, key, new_value):
+    """
+    Cambia el valor almacenado en el vértice.
+    """
+    vertex = get_vertex(graph, key)
+    if vertex:
+        vtx.set_value(vertex, new_value)
+    return graph
+
+
+def get_vertex_information(graph, key):
+    """
+    Retorna el valor del vértice.
+    """
+    vertex = get_vertex(graph, key)
+    return vtx.get_value(vertex) if vertex else None

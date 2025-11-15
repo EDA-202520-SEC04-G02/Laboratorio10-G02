@@ -29,8 +29,10 @@
 # ___________________________________________________
 
 from DataStructures.List import single_linked_list as lt
+from DataStructures.List import array_list as al
 from DataStructures.Map import map_linear_probing as m
 from DataStructures.Graph import digraph as G
+from DataStructures.Graph import dfs as DFS
 
 import csv
 import time
@@ -263,18 +265,68 @@ def add_same_stop_connections(analyzer, service):
 # ___________________________________________________
 
 def get_most_concurrent_stops(analyzer):
-    """
-    Obtiene las 5 paradas más concurridas
-    """
-    # TODO: Obtener las 5 paradas más concurridas, es decir, con más arcos salientes
-    ...
+    graph = analyzer["connections"]
 
-def get_route_between_stops_dfs(analyzer, stop1, stop2):
+    # 1. Obtener todas las llaves de vértices (array_list)
+    vkeys = G.vertices(graph)
+
+    degree_list = lt.new_list()  # esta sí será single linked list
+
+    # Recorrer array_list mediante índices
+    for i in range(al.size(vkeys)):
+        key = al.get_element(vkeys, i)
+        deg = G.degree(graph, key)
+        lt.add_last(degree_list, {"stop": key, "degree": deg})
+
+    # 2. Ordenar usando merge_sort del curso (descendente)
+    def cmp(a, b):
+        return a["degree"] > b["degree"]
+
+    degree_list = lt.merge_sort(degree_list, cmp)
+
+    # 3. Tomar los 5 primeros
+    top5 = lt.new_list()
+    total = min(5, lt.size(degree_list))
+    for i in range(total):
+        lt.add_last(top5, lt.get_element(degree_list, i))
+
+    return top5
+
+def get_route_between_stops_dfs(analyzer, start, goal):
     """
-    Obtener la ruta entre dos parada usando dfs
+    DFS especial para la opción 3:
+    Construye el camino hasta encontrar el destino.
     """
-    # TODO: Obtener la ruta entre dos parada usando dfs
-    ...
+    graph = analyzer["connections"]
+    visited = set()
+    path = lt.new_list()
+
+    found = _dfs_path(graph, start, goal, visited, path)
+
+    if found:
+        return path
+    else:
+        return None
+
+
+def _dfs_path(graph, current, goal, visited, path):
+    visited.add(current)
+    lt.add_last(path, current)
+
+    if current == goal:
+        return True
+
+    adj = G.adjacents(graph, current)  # array_list de claves
+    for i in range(al.size(adj)):
+        nxt = al.get_element(adj, i)
+        if nxt not in visited:
+            if _dfs_path(graph, nxt, goal, visited, path):
+                return True
+
+    # Backtracking real: si no lleva al destino, retrocedemos
+    path["last"] = path["last"]["prev"] if path["last"] else None
+    return False
+
 
 def get_route_between_stops_bfs(analyzer, stop1, stop2):
     """
