@@ -1,0 +1,102 @@
+from DataStructures.Map import map_linear_probing as mp
+from DataStructures.Graph import vertex as vtx
+from DataStructures.Graph import edge as edg
+
+
+# ---------------------------------------------------
+#   Crear un grafo dirigido vacío
+# ---------------------------------------------------
+def new_graph(order):
+    """
+    Crea un grafo dirigido vacío.
+
+    Atributos del grafo:
+        - vertices: mapa LP con los vértices (key → vertex)
+        - num_edges: número total de arcos
+
+    :param order: tamaño inicial del mapa de vértices
+    """
+    graph = {
+        "vertices": mp.new_map(order, 0.5),
+        "num_edges": 0
+    }
+    return graph
+
+
+# ---------------------------------------------------
+#   Insertar un vértice
+# ---------------------------------------------------
+def insert_vertex(graph, key, value=None):
+    """
+    Inserta un nuevo vértice con clave `key` en el grafo.
+    Si ya existe, no hace nada.
+
+    El vértice se crea usando new_vertex(key, value)
+    """
+    if not mp.contains(graph["vertices"], key):
+        vertex = vtx.new_vertex(key, value)
+        graph["vertices"] = mp.put(graph["vertices"], key, vertex)
+
+    return graph
+
+
+# ---------------------------------------------------
+#   Verificar si un vértice existe
+# ---------------------------------------------------
+def contains_vertex(graph, key):
+    """
+    Retorna True si el grafo contiene el vértice con clave `key`.
+    """
+    return mp.contains(graph["vertices"], key)
+
+
+# ---------------------------------------------------
+#   Añadir un arco dirigido (key_a → key_b)
+# ---------------------------------------------------
+def add_edge(graph, key_a, key_b, weight):
+    """
+    Agrega un arco desde key_a hacia key_b con peso `weight`.
+
+    - Si el vértice no existe, no se agrega nada.
+    - Se incrementa num_edges solo si el arco NO existía.
+    """
+    if not contains_vertex(graph, key_a):
+        return graph
+    if not contains_vertex(graph, key_b):
+        return graph
+
+    vertex_a = mp.get(graph["vertices"], key_a)
+
+    # Revisar si el arco ya existía
+    old_edge = vtx.get_edge(vertex_a, key_b)
+    if old_edge is None:
+        # Crear arco nuevo
+        vtx.add_adjacent(vertex_a, key_b, weight)
+        graph["num_edges"] += 1
+    else:
+        # Actualizar peso
+        edg.set_weight(old_edge, weight)
+
+    # Guardar cambios en el mapa
+    graph["vertices"] = mp.put(graph["vertices"], key_a, vertex_a)
+    return graph
+
+
+# ---------------------------------------------------
+#   Número de vértices
+# ---------------------------------------------------
+def order(graph):
+    """
+    Retorna el número de vértices del grafo.
+    """
+    return mp.size(graph["vertices"])
+
+
+# ---------------------------------------------------
+#   Número de arcos
+# ---------------------------------------------------
+def size(graph):
+    """
+    Retorna el número total de arcos del grafo.
+    """
+    return graph["num_edges"]
