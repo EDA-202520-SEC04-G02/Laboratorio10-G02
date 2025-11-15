@@ -136,14 +136,14 @@ def total_stops(analyzer):
     """
     Total de paradas de autobus en el grafo
     """
-    # TODO: Retorne el número de vértices del grafo
+    return G.order(analyzer['connections'])
 
 
 def total_connections(analyzer):
     """
     Total de enlaces entre las paradas
     """
-    # TODO: Retorne el número de arcos del grafo de conexiones
+    return G.size(analyzer['connections'])
 
 
 # Funciones para la medición de tiempos
@@ -205,7 +205,7 @@ def add_stop_vertex(analyzer, stopid):
     G.insert_vertex(analyzer['connections'], stopid, stopid)
     return analyzer
 
-
+'''
 def add_route_stop(analyzer, service):
     """
     Agrega a una estacion, una ruta que es servida en ese paradero
@@ -213,6 +213,21 @@ def add_route_stop(analyzer, service):
     stop_info = m.get(analyzer['stops'], service['BusStopCode'])
     stop_services = stop_info['services']
     if lt.is_present(stop_services, service['ServiceNo'], lt.default_function) == -1:
+        lt.add_last(stop_services, service['ServiceNo'])
+
+    return analyzer
+'''
+def add_route_stop(analyzer, service):
+    """
+    Agrega a una estación una ruta servida en ese paradero.
+    """
+    stop_info = m.get(analyzer['stops'], service['BusStopCode'])
+    stop_services = stop_info['services']
+
+    # Función de comparación correcta para is_present
+    cmp_fn = lambda a, b: 0 if a == b else 1
+
+    if lt.is_present(stop_services, service['ServiceNo'], cmp_fn) == -1:
         lt.add_last(stop_services, service['ServiceNo'])
 
     return analyzer
