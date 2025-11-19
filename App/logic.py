@@ -33,6 +33,9 @@ from DataStructures.List import array_list as al
 from DataStructures.Map import map_linear_probing as m
 from DataStructures.Graph import digraph as G
 from DataStructures.Graph import dfs as DFS
+from DataStructures.Stack import stack as st
+from DataStructures.Queue import queue as q
+from DataStructures.Priority_queue import priority_queue as pq
 
 import csv
 import time
@@ -333,7 +336,61 @@ def get_route_between_stops_bfs(analyzer, stop1, stop2):
     Obtener la ruta entre dos parada usando bfs
     """
     # TODO: Obtener la ruta entre dos parada usando bfs
-    ...
+    
+    grafo = analyzer["connections"]
+
+    # Validar existencia
+    if not G.contains_vertex(grafo, stop1) or not G.contains_vertex(grafo, stop2):
+        return None
+
+    order = G.order(grafo)
+    visited = m.new_map(order, 0.7)
+    parent = m.new_map(order, 0.7)
+
+    cola = q.new_queue()
+
+    # Inicialización
+    q.enqueue(cola, stop1)
+    visited = m.put(visited, stop1, True)
+
+    found = False
+
+    
+    while not q.is_empty(cola) and not found:
+        u = q.dequeue(cola)
+
+        
+        if u == stop2:
+            found = True
+
+        adj = G.adjacents(grafo, u)
+        deg = al.size(adj)
+
+        
+        if not found:
+            for i in range(deg):
+                v = al.get_element(adj, i)
+
+                if not m.contains(visited, v):
+                    visited = m.put(visited, v, True)
+                    parent = m.put(parent, v, u)
+                    q.enqueue(cola, v)
+
+    if not found:
+        return None
+
+    
+    caminho_stack = st.new_stack()
+    actual = stop2
+    while actual is not None:
+        st.push(caminho_stack, actual)
+        actual = m.get(parent, actual)
+
+    path = lt.new_list()
+    while not st.is_empty(caminho_stack):
+        lt.add_last(path, st.pop(caminho_stack))
+
+    return path
 
 def get_shortest_route_between_stops(analyzer, stop1, stop2):
     """
@@ -342,7 +399,99 @@ def get_shortest_route_between_stops(analyzer, stop1, stop2):
     # TODO: Obtener la ruta mínima entre dos paradas
     # Nota: Tenga en cuenta que el debe guardar en la llave
     #       analyzer['paths'] el resultado del algoritmo de Dijkstra
-    ...
+    
+    grafo = analyzer["connections"]
+
+    
+    if not G.contains_vertex(grafo, stop1) or not G.contains_vertex(grafo, stop2):
+        analyzer["paths"] = None
+        return None
+
+    order = G.order(grafo)
+
+    dist = m.new_map(order, 0.7)
+    prev = m.new_map(order, 0.7)
+
+    INF = float("inf")
+
+    
+    vertices = G.vertices(grafo)
+    n = al.size(vertices)
+
+    for i in range(n):
+        v = al.get_element(vertices, i)
+        dist = m.put(dist, v, INF)
+        prev = m.put(prev, v, None)
+
+    dist = m.put(dist, stop1, 0.0)
+
+    
+    heap = pq.new_heap(is_min_pq=True)
+    pq.insert(heap, 0.0, stop1)
+
+    found = False
+
+    
+    while not pq.is_empty(heap) and not found:
+
+        u = pq.remove(heap)
+        du = m.get(dist, u)
+
+        
+        if u == stop2:
+            found = True
+
+       
+        if du != INF and not found:
+
+            adj = G.adjacents(grafo, u)
+            edge_map = G.edges_vertex(grafo, u)
+            deg = al.size(adj)
+
+            i = 0
+            while i < deg:
+                v = al.get_element(adj, i)
+                edge = m.get(edge_map, v)
+
+                
+                if edge is not None:
+                    w = edge["weight"]
+                    alt = du + w
+                    dv = m.get(dist, v)
+
+                    if alt < dv:
+                        dist = m.put(dist, v, alt)
+                        prev = m.put(prev, v, u)
+
+                        if pq.contains(heap, v):
+                            pq.improve_priority(heap, v, alt)
+                        else:
+                            pq.insert(heap, alt, v)
+
+                i += 1
+
+    analyzer["paths"] = {
+        "source": stop1,
+        "dist": dist,
+        "prev": prev
+    }
+
+    final_dist = m.get(dist, stop2)
+    if final_dist == INF:
+        return None
+
+    
+    caminho_stack = st.new_stack()
+    actual = stop2
+    while actual is not None:
+        st.push(caminho_stack, actual)
+        actual = m.get(prev, actual)
+
+    path = lt.new_list()
+    while not st.is_empty(caminho_stack):
+        lt.add_last(path, st.pop(caminho_stack))
+
+    return path, final_dist
 
 def show_calculated_shortest_route(analyzer, destination_stop):
     # (Opcional) TODO: Mostrar en un mapa la ruta mínima entre dos paradas usando folium
