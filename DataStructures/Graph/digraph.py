@@ -1,6 +1,7 @@
 from DataStructures.Map import map_linear_probing as mp
 from DataStructures.Graph import vertex as vtx
 from DataStructures.Graph import edge as edg
+from DataStructures.List import array_list as al
 
 
 # ---------------------------------------------------
@@ -131,8 +132,14 @@ def adjacents(graph, key):
     Retorna las llaves de los vértices adyacentes a key.
     """
     vertex = get_vertex(graph, key)
-    return mp.key_set(vtx.get_adjacents(vertex))
+    if vertex is None:
+        return al.new_list()
 
+    adj_map = vtx.get_adjacents(vertex)
+    if adj_map is None:
+        return al.new_list()
+
+    return mp.key_set(adj_map)
 
 def edges_vertex(graph, key):
     """

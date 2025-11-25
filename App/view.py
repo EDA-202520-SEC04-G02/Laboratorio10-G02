@@ -124,7 +124,55 @@ def option_three(cont):
 
 def option_four(cont):
     # TODO: Imprimir los resultados de la opción 4
-    ...
+
+    print("\n--- OPCIÓN 4 (BFS) ---")
+    start = input("Parada inicial: ")
+    goal = input("Parada destino: ")
+
+    
+    path_list = logic.get_route_between_stops_bfs(cont, start, goal)
+
+    if path_list is None or lt.size(path_list) == 0:
+        print("No hay ruta BFS entre las paradas dadas.\n")
+        return
+
+    print("\n--- RUTA BFS ---\n")
+
+    
+    first_code = lt.get_element(path_list, 0)
+
+    
+    if "-" in first_code:
+        first_stop, current_bus = first_code.split("-", 1)
+    else:
+        first_stop = first_code
+        current_bus = "N/A"
+
+    
+    print(f"--- Tomar bus '{current_bus}' desde '{first_code}' ---")
+
+    
+    n = lt.size(path_list)
+    for i in range(n):
+        code = lt.get_element(path_list, i)   
+        
+        if "-" in code:
+            stop, bus = code.split("-", 1)
+        else:
+            stop, bus = code, current_bus
+
+        # Si cambia el bus
+        if bus != current_bus:
+            print(f"\n--- Cambiar a bus '{bus}' en la parada '{stop}' ---")
+            current_bus = bus
+
+        # Imprimir parada
+        if i < n - 1:
+            print(stop, end=" -> ")
+        else:
+            print(stop)
+
+    print()
 
 def option_five(cont):
     # TODO: Imprimir los resultados de la opción 5
