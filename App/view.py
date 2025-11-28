@@ -176,8 +176,73 @@ def option_four(cont):
 
 def option_five(cont):
     # TODO: Imprimir los resultados de la opción 5
-    ...
 
+    print("\n----- OPCIÓN 5 ----")
+    start = input("Parada inicial: ").strip()
+    goal = input("Parada destino: ").strip()
+
+    
+    path_list = logic.get_shortest_route_between_stops(cont, start, goal)
+
+    
+    if path_list is None:
+        print("No hay ruta mínima entre las paradas dadas.\n")
+        return
+
+   
+
+    
+    codes = al.new_list()
+    node = path_list["first"]
+    while node is not None:
+        al.add_last(codes, node["info"])
+        node = node["next"]
+
+    n = al.size(codes)
+    if n == 0:
+        print("No hay ruta mínima entre las paradas dadas.\n")
+        return
+
+    first_code = al.get_element(codes, n - 1)
+
+    print(f"Origen: '{start}'")
+    print(f"Destino: '{goal}'")
+
+    
+    if "-" in first_code:
+        first_stop, current_bus = first_code.split("-", 1)
+    else:
+        first_stop = first_code
+        current_bus = "N/A"
+
+    print(f"--- Tomar bus '{current_bus}' desde '{first_code}' ---")
+
+    
+    idx = n - 1
+    while idx >= 0:
+        code = al.get_element(codes, idx)
+
+        if "-" in code:
+            stop, bus = code.split("-", 1)
+        else:
+            stop, bus = code, current_bus
+
+        
+        if bus != current_bus:
+            print(f"\n--- Cambiar a bus '{bus}' en la parada '{stop}' ---")
+            current_bus = bus
+
+       
+        if idx > 0:
+            print(stop, end=" -> ")
+        else:
+            print(stop)
+
+        idx -= 1
+
+    print()  
+    
+    
 def option_six(cont):
     # (Opcional) TODO: Imprimir los resultados de la opción 6
     ...

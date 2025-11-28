@@ -382,6 +382,28 @@ def get_shortest_route_between_stops(analyzer, stop1, stop2):
     # Nota: Tenga en cuenta que el debe guardar en la llave
     #       analyzer['paths'] el resultado del algoritmo de Dijkstra
     
+    graph = analyzer["connections"]
+
+    
+    if not G.contains_vertex(graph, stop1) or not G.contains_vertex(graph, stop2):
+        return None
+
+    
+    if ("paths" not in analyzer 
+        or analyzer["paths"] is None
+        or analyzer["paths"]["source"] != stop1):
+
+        analyzer["paths"] = BFS.dijkstra(graph, stop1)
+
+    structure = analyzer["paths"]
+
+    
+    if not BFS.has_path_to(stop2, structure):
+        return None
+
+    
+    return BFS.path_to(stop2, structure)
+    
     
 
 def show_calculated_shortest_route(analyzer, destination_stop):
