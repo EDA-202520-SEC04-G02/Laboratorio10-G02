@@ -35,6 +35,8 @@ from DataStructures.Graph import digraph as G
 from DataStructures.Graph import dfs as DFS
 from DataStructures.Graph import bfs as BFS
 from DataStructures.Stack import stack as st
+from DataStructures.Graph import dijsktra_structure as DIJ
+
 
 import csv
 import time
@@ -261,18 +263,36 @@ def add_connection(analyzer, origin, destination, distance):
 
 
 def add_same_stop_connections(analyzer, service):
-    stop_1 = format_vertex(service)
-    stop_buses_lt = m.get(analyzer['stops'], service['BusStopCode'])['services']
+   
+   
+   
+    stop_1 = format_vertex(service)  
+    stop_id = service['BusStopCode']
 
-    if lt.size(stop_buses_lt) > 1:
-        pass
+    stop_info = m.get(analyzer['stops'], stop_id)
+    if stop_info is None:
+        return analyzer
+
+    stop_buses_lt = stop_info['services']  
+
+    size = lt.size(stop_buses_lt)
+    if size <= 1:
+        return analyzer
 
     node = stop_buses_lt['first']
-    for _ in range(lt.size(stop_buses_lt)):
-        stop_2 = format_vertex({'BusStopCode': service['BusStopCode'], 'ServiceNo': node['info']})
+    i = 0
+    while i < size:
+        service_no = node['info']  
+        stop_2 = format_vertex({'BusStopCode': stop_id,
+                                'ServiceNo': service_no})
+
         if stop_1 != stop_2:
+            
             add_connection(analyzer, stop_1, stop_2, 0)
+
         node = node['next']
+        i += 1
+
     return analyzer
 
 
@@ -384,25 +404,19 @@ def get_shortest_route_between_stops(analyzer, stop1, stop2):
     
     graph = analyzer["connections"]
 
-    
     if not G.contains_vertex(graph, stop1) or not G.contains_vertex(graph, stop2):
         return None
 
-    
-    if ("paths" not in analyzer 
-        or analyzer["paths"] is None
-        or analyzer["paths"]["source"] != stop1):
-
-        analyzer["paths"] = BFS.dijkstra(graph, stop1)
+    # Ejecutar Dijkstra solo si hace falta
+    if analyzer["paths"] is None or analyzer["paths"]["source"] != stop1:
+        analyzer["paths"] = DIJ.dijkstra(graph, stop1)
 
     structure = analyzer["paths"]
 
-    
-    if not BFS.has_path_to(stop2, structure):
+    if not DIJ.has_path_to(stop2, structure):
         return None
 
-    
-    return BFS.path_to(stop2, structure)
+    return DIJ.path_to(stop2, structure)
     
     
 
